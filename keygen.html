@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Access Key Generator</title>
+    <style>
+        :root {
+            --glass-color: rgba(255, 255, 255, 0.1);
+            --border-color: rgba(255, 255, 255, 0.2);
+            --text-color: #ffffff;
+            --accent-color: #4a90e2;
+            --danger-color: #e74c3c;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .rgb-border {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, 
+                #ff0000, #ff7700, #ffdd00, 
+                #33ff00, #0099ff, #7700ff, 
+                #ff00ff, #ff0066, #ff0000);
+            background-size: 800% 800%;
+            animation: rgbFlow 15s linear infinite;
+            filter: blur(15px);
+            opacity: 0.3;
+            z-index: -1;
+        }
+        
+        @keyframes rgbFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .container {
+            background: var(--glass-color);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 15px;
+            border: 1px solid var(--border-color);
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 300;
+            color: var(--accent-color);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-color);
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s;
+        }
+        
+        select:focus, input:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+        }
+        
+        button {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            width: 100%;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: #3a7bc8;
+            transform: translateY(-2px);
+        }
+        
+        .key-display {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            word-break: break-all;
+            text-align: center;
+            font-family: monospace;
+            font-size: 18px;
+            border: 1px dashed var(--border-color);
+        }
+        
+        .copy-btn {
+            margin-top: 10px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .admin-checkbox {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .admin-checkbox input {
+            width: auto;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="rgb-border"></div>
+    <div class="container">
+        <h1>Access Key Generator</h1>
+        
+        <div class="form-group">
+            <label for="duration">Key Duration:</label>
+            <select id="duration">
+                <option value="1">1 Day</option>
+                <option value="3">3 Days</option>
+                <option value="7">7 Days</option>
+                <option value="30">1 Month</option>
+                <option value="90">3 Months</option>
+                <option value="365">1 Year</option>
+                <option value="lifetime">Lifetime (Admin Only)</option>
+            </select>
+        </div>
+        
+        <div class="admin-checkbox">
+            <input type="checkbox" id="admin">
+            <label for="admin">Admin Key</label>
+        </div>
+        
+        <button id="generate-btn">Generate Access Key</button>
+        
+        <div id="key-result" class="key-display" style="display: none;">
+            <div id="generated-key"></div>
+            <button class="copy-btn" id="copy-btn">Copy Key</button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('generate-btn').addEventListener('click', function() {
+            const duration = document.getElementById('duration').value;
+            const isAdmin = document.getElementById('admin').checked;
+            
+            // Generate random 10-character key
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let key = '';
+            for (let i = 0; i < 10; i++) {
+                key += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            
+            // Create key data object
+            const keyData = {
+                key: key,
+                duration: duration,
+                isAdmin: isAdmin,
+                createdAt: new Date().toISOString()
+            };
+            
+            // Store in localStorage
+            localStorage.setItem('generatedKey', JSON.stringify(keyData));
+            
+            // Display the key
+            document.getElementById('generated-key').textContent = key;
+            document.getElementById('key-result').style.display = 'block';
+            
+            // Scroll to key
+            document.getElementById('key-result').scrollIntoView({ behavior: 'smooth' });
+        });
+        
+        document.getElementById('copy-btn').addEventListener('click', function() {
+            const key = document.getElementById('generated-key').textContent;
+            navigator.clipboard.writeText(key).then(() => {
+                const btn = document.getElementById('copy-btn');
+                btn.textContent = 'Copied!';
+                setTimeout(() => {
+                    btn.textContent = 'Copy Key';
+                }, 2000);
+            });
+        });
+        
+        // Disable lifetime if not admin
+        document.getElementById('admin').addEventListener('change', function() {
+            const duration = document.getElementById('duration');
+            if (this.checked) {
+                duration.querySelector('option[value="lifetime"]').disabled = false;
+            } else {
+                duration.value = '1';
+                duration.querySelector('option[value="lifetime"]').disabled = true;
+            }
+        });
+    </script>
+</body>
+</html>
